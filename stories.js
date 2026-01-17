@@ -1,11 +1,41 @@
-const storyDatabase = {
-    ne: [
-        { id: 1, title: "हिमालको छाया", content: "यो एउटा काल्पनिक कथा हो..." },
-        { id: 2, title: "पुरानो घर", content: "गाउँको त्यो पुरानो घर अझै उस्तै छ..." }
-    ],
-    hi: [
-        { id: 3, title: "नई सुबह", content: "सूरज की पहली किरण के साथ ही..." },
-        { id: 4, title: "अनकही बातें", content: "कुछ बातें अधूरी ही अच्छी लगती हैं..." }
-    ]
+let currentLang = 'ne';
+
+window.onload = () => {
+    setTimeout(() => {
+        document.getElementById('loading-screen').classList.add('hidden');
+        document.getElementById('app').classList.remove('hidden');
+        renderStories();
+    }, 2600);
 };
 
+function renderStories() {
+    const grid = document.getElementById('story-grid');
+    grid.innerHTML = '';
+    
+    // stories.js बाट डेटा तान्ने
+    storyDatabase[currentLang].forEach(story => {
+        const card = document.createElement('div');
+        card.className = 'glass-card';
+        card.innerHTML = `<h3>${story.title}</h3>`;
+        card.onclick = () => openStory(story);
+        grid.appendChild(card);
+    });
+}
+
+function switchLanguage(lang) {
+    currentLang = lang;
+    document.getElementById('btn-ne').classList.toggle('active', lang === 'ne');
+    document.getElementById('btn-hi').classList.toggle('active', lang === 'hi');
+    renderStories();
+}
+
+function openStory(story) {
+    document.getElementById('reader-title').innerText = story.title;
+    document.getElementById('reader-text').innerText = story.content;
+    document.getElementById('story-reader').classList.remove('hidden');
+    window.scrollTo(0,0);
+}
+
+function closeStory() {
+    document.getElementById('story-reader').classList.add('hidden');
+}
