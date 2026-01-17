@@ -4,58 +4,87 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Aadhiraj Story</title>
-    <link rel="stylesheet" href="style.css">
-    <link rel="manifest" href="manifest.json">
-    <link href="https://fonts.googleapis.com/css2?family=Mukta:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        /* यहाँ अघिको CSS छ */
+        :root { --bg-color: #F8F5F2; --text-color: #333; --accent-color: #007AFF; }
+        .dark-mode { --bg-color: #121212; --text-color: #e0e0e0; }
+        body { margin: 0; font-family: sans-serif; background: var(--bg-color); color: var(--text-color); overflow-x: hidden; }
+        #loading-screen { position: fixed; inset: 0; background: #000; display: flex; flex-direction: column; justify-content: center; align-items: center; z-index: 1000; }
+        .progress-container { width: 200px; height: 4px; background: #333; margin-top: 20px; border-radius: 10px; overflow: hidden; }
+        .progress-bar { width: 0; height: 100%; background: var(--accent-color); animation: load 2.5s forwards; }
+        @keyframes load { to { width: 100%; } }
+        .hidden { display: none !important; }
+        .glass-card { background: rgba(255,255,255,0.1); backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.2); padding: 20px; margin: 10px; border-radius: 15px; text-align: center; cursor: pointer; }
+        #story-reader { position: fixed; inset: 0; background: var(--bg-color); padding: 20px; z-index: 100; transform: translateY(100%); transition: 0.4s; overflow-y: auto; }
+        #story-reader.open { transform: translateY(0); }
+        .story-footer { text-align: center; margin-top: 50px; padding-bottom: 30px; }
+        .short-msg { color: green; font-weight: bold; }
+    </style>
 </head>
 <body>
 
     <div id="loading-screen">
-        <div class="loader-content">
-            <h1>Aadhiraj Story</h1>
-            <div class="progress-container">
-                <div class="progress-bar"></div>
+        <h1 style="color: white;">Aadhiraj Story</h1>
+        <div class="progress-container"><div class="progress-bar"></div></div>
+    </div>
+
+    <div id="app" class="hidden">
+        <header style="padding: 20px; display: flex; justify-content: space-between;">
+            <button onclick="document.body.classList.toggle('dark-mode')">🌓</button>
+            <div>
+                <button onclick="switchLang('ne')">नेपाली</button>
+                <button onclick="switchLang('hi')">हिन्दी</button>
+            </div>
+        </header>
+        <div id="story-grid"></div>
+    </div>
+
+    <div id="story-reader">
+        <button onclick="closeStory()" style="color: blue; border: none; background: none; font-size: 18px; cursor: pointer;">← पछाडि</button>
+        <div id="content" style="max-width: 600px; margin: auto;">
+            <h1 id="title" style="text-align: center;"></h1>
+            <div id="body-text" style="font-size: 18px; line-height: 1.6;"></div>
+            <div class="story-footer">
+                <p>लेखक: <b>अधिराज सुनार</b></p>
+                <p class="short-msg">शुभ पठन</p>
+                <p>♡︎ Thanks For Reading ♡︎</p>
             </div>
         </div>
     </div>
 
-    <div id="app" class="hidden">
-        <header>
-            <div class="controls">
-                <button id="theme-toggle">🌓</button>
-                <div class="font-controls">
-                    <button onclick="changeFontSize(-2)">-A</button>
-                    <button onclick="changeFontSize(2)">+A</button>
-                </div>
-            </div>
-            
-            <div class="language-tabs">
-                <button id="btn-ne" class="active" onclick="switchLanguage('ne')">नेपाली</button>
-                <button id="btn-hi" onclick="switchLanguage('hi')">हिन्दी</button>
-            </div>
-        </header>
+    <script>
+        const stories = {
+            ne: [{title: "नयाँ सुरुवात", text: "यो एउटा नेपाली कथाको नमुना हो।"}],
+            hi: [{title: "नई शुरुआत", text: "यह एक हिंदी कहानी का नमूना है।"}]
+        };
+        let lang = 'ne';
 
-        <main id="story-grid">
-            </main>
+        window.onload = () => {
+            setTimeout(() => {
+                document.getElementById('loading-screen').classList.add('hidden');
+                document.getElementById('app').classList.remove('hidden');
+                render();
+            }, 2600);
+        };
 
-        <button id="install-button" class="hidden">Install App</button>
-    </div>
+        function render() {
+            const grid = document.getElementById('story-grid');
+            grid.innerHTML = '';
+            stories[lang].forEach(s => {
+                const div = document.createElement('div');
+                div.className = 'glass-card';
+                div.innerHTML = `<h3>${s.title}</h3>`;
+                div.onclick = () => {
+                    document.getElementById('title').innerText = s.title;
+                    document.getElementById('body-text').innerText = s.text;
+                    document.getElementById('story-reader').classList.add('open');
+                };
+                grid.appendChild(div);
+            });
+        }
 
-    <div id="story-reader" class="hidden">
-        <button class="back-btn" onclick="closeStory()">← पछाडि</button>
-        <article id="reader-content">
-            <h1 id="story-title"></h1>
-            <div id="story-text"></div>
-            
-            <footer class="story-footer">
-                <p class="author-name">लेखक: अधिराज सुनार</p>
-                <p class="short-msg">शुभ पठन</p>
-                <p class="thanks-msg">♡︎ Thanks For Reading ♡︎</p>
-            </footer>
-        </article>
-    </div>
-
-    <script src="stories.js"></script>
-    <script src="script.js"></script>
+        function switchLang(l) { lang = l; render(); }
+        function closeStory() { document.getElementById('story-reader').classList.remove('open'); }
+    </script>
 </body>
 </html>
