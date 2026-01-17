@@ -1,20 +1,50 @@
-// Loading Logic मा सुधार
-window.addEventListener('DOMContentLoaded', () => {
-    console.log("App checking files...");
-    
-    // यदि २.६ सेकेन्ड पछि पनि लोडिङ स्क्रिन हटेन भने जबरजस्ती हटाउने
+let currentLang = 'ne';
+
+window.onload = () => {
     setTimeout(() => {
-        const loader = document.getElementById('loading-screen');
-        const app = document.getElementById('app');
-        
-        if(loader) loader.classList.add('hidden');
-        if(app) app.classList.remove('hidden');
-        
-        // कथाहरू लोड गर्ने प्रयास गर्ने
-        if (typeof renderList === "function") {
-            renderList();
-        } else {
-            console.error("renderList function not found! Check stories.js");
-        }
+        document.getElementById('loader').classList.add('hidden');
+        document.getElementById('app').classList.remove('hidden');
+        loadList();
     }, 2600);
+};
+
+function loadList() {
+    const grid = document.getElementById('story-grid');
+    grid.innerHTML = '';
+    stories[currentLang].forEach(s => {
+        const card = document.createElement('div');
+        card.className = 'glass-card';
+        card.innerHTML = `<h3>${s.title}</h3>`;
+        card.onclick = () => {
+            document.getElementById('r-title').innerText = s.title;
+            document.getElementById('r-body').innerText = s.content;
+            document.getElementById('reader').classList.add('open');
+        };
+        grid.appendChild(card);
+    });
+}
+
+function setLang(l) {
+    currentLang = l;
+    document.getElementById('tab-ne').classList.toggle('active', l==='ne');
+    document.getElementById('tab-hi').classList.toggle('active', l==='hi');
+    loadList();
+}
+
+function closeStory() { document.getElementById('reader').classList.remove('open'); }
+
+// --- Install Application Feature ---
+let deferredPrompt;
+window.addEventListener('beforeinstallprompt', (e) => {
+    e.preventDefault();
+    deferredPrompt = e;
+    const installBtn = document.createElement('button');
+    installBtn.innerText = "📲 App Install गर्नुहोस्";
+    installBtn.style = "position:fixed; bottom:20px; left:50%; transform:translateX(-50%); z-index:5000; background:black; color:white; padding:10px 20px; border-radius:50px; border:none;";
+    document.body.appendChild(installBtn);
+
+    installBtn.onclick = () => {
+        deferredPrompt.prompt();
+        installBtn.remove();
+    };
 });
